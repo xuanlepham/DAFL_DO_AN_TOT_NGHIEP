@@ -1,16 +1,30 @@
-<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
-<suite name="DAFL Functional Regression Suite" verbose="1">
-    <test name="E2E Regression Tests">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="DAFL Continuous Testing Automation Suite" verbose="1">
+    <parameter name="browser" value="chrome"/>
+
+    <listeners>
+        <listener class-name="vn.dafl.reportConfig.AllureTestListener"/>
+    </listeners>
+
+    <test name="E2E Customer Journey Flow">
         <classes>
-            <class name="vn.dafl.tests.HomePageTest" />
-            <class name="vn.dafl.tests.CatalogAndCartTest" />
-            <class name="vn.dafl.tests.CatalogFilterTest" />
-            <class name="vn.dafl.tests.AuthModalTest" />
-            <class name="vn.dafl.tests.AuthFlowTest" />
-            <class name="vn.dafl.tests.RegisterTest" />
-            <class name="vn.dafl.tests.VoucherTest" />
-            <class name="vn.dafl.tests.CheckoutValidationTest" />
-            <class name="vn.dafl.tests.CheckoutE2ETest" />
+            <class name="vn.dafl.tests.EndToEndShoppingFlowTest"/>
+        </classes>
+    </test>
+
+    <test name="Negative &amp; Exception Scenarios">
+        <classes>
+            <class name="vn.dafl.tests.NegativeAndExceptionScenariosTest"/>
+        </classes>
+    </test>
+
+    <test name="Regression - DAFL E-Commerce Modules">
+        <classes>
+            <class name="vn.dafl.tests.AuthTest"/>
+            <class name="vn.dafl.tests.CatalogAndSearchTest"/>
+            <class name="vn.dafl.tests.CartManagementTest"/>
+            <class name="vn.dafl.tests.CheckoutAndOrderTest"/>
         </classes>
     </test>
 </suite>
