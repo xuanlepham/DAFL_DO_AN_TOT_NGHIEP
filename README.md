@@ -24,7 +24,7 @@ DAFL_DO_AN_TOT_NGHIEP/
 │   │   └── NegativeAndExceptionScenariosTest (14 case âm/ngoại lệ)
 │   ├── testng.xml · testng-flow.xml · testng-negative.xml
 │   └── run_test_with_gui.bat · run_test_headless.bat  (tự lo JDK 17 + JAVA_HOME + Wrapper)
-├── performance/           ← [2] Kiểm thử hiệu năng (Apache JMeter): dafl-loadtest.jmx
+├── performance/           ← [2] Kiểm thử hiệu năng (Apache JMeter): dafl-loadtest.jmx — viết theo Swagger/OpenAPI của Backend (25 sampler, luồng cookie-session)
 ├── quality-gate/          ← [3] Quality Gate: check_performance_gate.sh (Jenkins/Linux) + .py (Windows)
 ├── ci/jenkins/quick-setup/ ← Jenkins dựng sẵn bằng Docker + JCasC, tự tạo 3 job
 ├── Jenkinsfile            ← Pipeline TỔNG HỢP: dựng SUT → automation → performance → 2 Quality Gate → deploy khi PASS
