@@ -4,23 +4,33 @@
 
 Repo này chứa **tầng kiểm thử** của đồ án (không chứa mã nguồn BE/FE). Hệ thống được kiểm thử (SUT) là ứng dụng thương mại điện tử **DAFL** — lấy từ repo gốc `sonismyname/DAFL`, được kiểm thử theo kiểu **hộp đen** qua giao diện web `http://localhost:3000` và API `http://localhost:5000`. Các pipeline trong repo này tự clone SUT vào thư mục `sut/` khi chạy.
 
+Phần automation được **viết dựa trên mã nguồn FE/BE thật của DAFL** (mọi `data-testid`, thông điệp lỗi, dữ liệu seed đều trích từ SUT) và tổ chức theo mô hình Page Object Model.
+
 ## Cấu trúc thư mục
 
 ```text
 DAFL_DO_AN_TOT_NGHIEP/
-├── automation/            ← [1] Kiểm thử tự động (Java + Selenium WebDriver + TestNG, mô hình Page Object)
+├── automation/            ← [1] Kiểm thử tự động (Java + Selenium WebDriver + TestNG + Allure, mô hình POM)
 │   ├── pom.xml · mvnw · mvnw.cmd · .mvn/wrapper/   (Maven Wrapper — máy chỉ cần JDK 17)
-│   ├── src/main/java/vn/dafl/   ← framework: commons · pageUIs · pageObjects
-│   ├── src/test/java/vn/dafl/tests/  ← 9 lớp test, 22 test case tự động
-│   ├── testng.xml
-│   └── run-e2e-ui.bat     ← chạy nhanh có giao diện Chrome trên Windows (tự lo JDK/JAVA_HOME)
+│   ├── src/main/java/vn/dafl/
+│   │   ├── commons/       ← BasePage · BaseTest · GlobalConstants
+│   │   ├── driver/        ← DriverManager (WebDriver theo thread)
+│   │   ├── pageUIs/       ← locator theo 7 màn hình (trích từ data-testid của FE)
+│   │   ├── pageObjects/   ← 7 page object tương ứng
+│   │   └── reportConfig/  ← AllureTestListener (chụp màn hình khi test fail)
+│   ├── src/test/java/vn/dafl/tests/  ← 6 lớp test, 32 test case
+│   │   ├── AuthTest · CatalogAndSearchTest · CartManagementTest
+│   │   ├── CheckoutAndOrderTest · EndToEndShoppingFlowTest
+│   │   └── NegativeAndExceptionScenariosTest (14 case âm/ngoại lệ)
+│   ├── testng.xml · testng-flow.xml · testng-negative.xml
+│   └── run_test_with_gui.bat · run_test_headless.bat  (tự lo JDK 17 + JAVA_HOME + Wrapper)
 ├── performance/           ← [2] Kiểm thử hiệu năng (Apache JMeter): dafl-loadtest.jmx
 ├── quality-gate/          ← [3] Quality Gate: check_performance_gate.sh (Jenkins/Linux) + .py (Windows)
 ├── ci/jenkins/quick-setup/ ← Jenkins dựng sẵn bằng Docker + JCasC, tự tạo 3 job
 ├── Jenkinsfile            ← Pipeline TỔNG HỢP: dựng SUT → automation → performance → 2 Quality Gate → deploy khi PASS
 ├── Jenkinsfile.auto       ← Pipeline riêng AUTOMATION
 ├── Jenkinsfile.pt         ← Pipeline riêng PERFORMANCE + Quality Gate hiệu năng
-└── docs/                  ← Tài liệu: hướng dẫn từng bước, đặc tả 30 test case, kiểm tra Jenkinsfile, giải thích mô hình repo
+└── docs/                  ← Tài liệu: hướng dẫn từng bước, đặc tả test case, kiểm tra Jenkinsfile, giải thích mô hình repo
 ```
 
 ## Quality Gate
@@ -30,19 +40,21 @@ DAFL_DO_AN_TOT_NGHIEP/
 
 ## Chạy nhanh trên Windows
 
-Điều kiện: DAFL (SUT) đang chạy tại `localhost:3000`, máy có Internet (lần đầu để tải JDK/Maven/thư viện nếu thiếu).
+Điều kiện: DAFL (SUT) đang chạy tại `localhost:3000`, máy có Internet (lần đầu, để tải JDK/Maven/thư viện nếu thiếu).
 
 ```bat
 cd automation
-run-e2e-ui.bat                      :: chay toan bo suite (testng.xml), Chrome co giao dien
-run-e2e-ui.bat --t CheckoutE2ETest  :: chay mot lop test chi dinh
+run_test_with_gui.bat        :: toan bo suite testng.xml, Chrome co giao dien
+run_test_headless.bat        :: toan bo suite, che do headless (cho CI)
 ```
 
-Hoặc bằng Maven Wrapper trực tiếp:
+Chạy từng suite bằng Maven Wrapper:
 
 ```bat
 cd automation
 mvnw.cmd test -Dheadless=false -Dapp.url=http://localhost:3000
+mvnw.cmd test -DsuiteXmlFile=testng-flow.xml -Dheadless=true
+mvnw.cmd test -DsuiteXmlFile=testng-negative.xml -Dheadless=true
 ```
 
 ## Chạy bằng Jenkins
@@ -52,7 +64,7 @@ Xem `ci/jenkins/quick-setup/README.md` để dựng Jenkins bằng Docker (tự 
 ## Tài liệu
 
 - `docs/HUONG-DAN-TUNG-BUOC.md` — cài đặt → kiểm chứng → chạy automation/JMeter/Jenkins → demo.
-- `docs/TEST-CASES-DAFL.md` / `.csv` — đặc tả 30 test case (27 tự động hóa hoàn toàn, 2 nằm trong luồng E2E, 1 kiểm thử tay bằng Postman).
+- `docs/TEST-CASES-DAFL.md` / `.csv` — đặc tả test case của đồ án.
 - `docs/KIEM-TRA-JENKINSFILE.md` — biên bản kiểm tra pipeline theo 10 tiêu chí.
 - `docs/GIAI-THICH-MO-HINH-REPO.md` — vì sao đồ án dùng 1 repo kiểm thử và SUT tách riêng (câu hỏi thường gặp khi bảo vệ).
 
