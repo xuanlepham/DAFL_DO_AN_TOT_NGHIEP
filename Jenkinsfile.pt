@@ -1,0 +1,151 @@
+// =====================================================================
+// DAFL - Pipeline PERFORMANCE (JMeter + Performance Quality Gate)
+// Tach rieng de sua doi doc lap voi pipeline Automation (Jenkinsfile.auto).
+// Job Jenkins goi y: 'DAFL-Performance' (scriptPath = Jenkinsfile.pt)
+// Pipeline tong hop chay ca hai: 'Jenkinsfile' (job DAFL-Pipeline).
+// =====================================================================
+pipeline {
+    agent any
+
+    options {
+        // Chống 2 build chạy song song đụng container
+        disableConcurrentBuilds()
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    triggers {
+        githubPush()
+    }
+
+    environment {
+        REPO_URL        = 'https://github.com/xuanlepham/DAFL_DO_AN_TOT_NGHIEP.git'
+        TARGET_BRANCH   = 'main'
+        PROJECT_NAME    = 'dafl'
+        DOCKER_NETWORK  = 'dafl_dafl-network'
+
+        // Ngưỡng Quality Gate hiệu năng (Stage 4)
+        MAX_ERROR_RATE  = '2.0'      // Tỷ lệ lỗi tối đa: 2%
+        MAX_AVG_RT_MS   = '1000.0'   // Response Time trung bình tối đa: 1000ms
+    }
+
+    stages {
+        stage('Stage 1: Checkout') {
+            steps {
+                echo "=== Stage 1: Lấy mã nguồn mới nhất từ GitHub (${TARGET_BRANCH}) ==="
+                git branch: TARGET_BRANCH, url: REPO_URL
+                // SUT la repo ngoai (hop den): clone rieng vao thu muc sut/ de dung FE/BE
+                sh "rm -rf sut && git clone --depth 1 -b develop https://github.com/sonismyname/DAFL.git sut"
+
+            }
+        }
+        stage('Stage 2: Build & Prepare SUT') {
+            steps {
+                echo "=== Build và khởi chạy SUT (System Under Test) trên Docker ==="
+                dir('sut') {
+                    sh """
+                        # Build container backend và frontend phiên bản mới nhất
+                        docker compose -p ${PROJECT_NAME} -f docker-compose.yml build backend frontend
+
+                        # Chạy toàn bộ services (Postgres, Kafka, Backend, Frontend)
+                        docker compose -p ${PROJECT_NAME} -f docker-compose.yml up -d
+
+                        # Chờ SUT sẵn sàng bang healthcheck (toi da 180 giay) thay cho sleep co dinh
+                        echo "Cho Backend va Frontend san sang (healthcheck, toi da 180 giay)..."
+                        READY=0
+                        for i in \$(seq 1 60); do
+                            if docker run --rm --network ${DOCKER_NETWORK} curlimages/curl:8.9.1 -sf http://dafl-backend:8080/health >/dev/null 2>&1 && docker run --rm --network ${DOCKER_NETWORK} curlimages/curl:8.9.1 -sf http://dafl-frontend:80 >/dev/null 2>&1; then
+                                echo "SUT da san sang (sau khoang \$((i*3)) giay)"
+                                READY=1
+                                break
+                            fi
+                            echo "  Chua san sang (lan \$i/60), cho 3 giay..."
+                            sleep 3
+                        done
+                        if [ "\$READY" != "1" ]; then
+                            echo "SUT khong san sang sau 180 giay - logs gan nhat cua backend/frontend:"
+                            docker compose -p ${PROJECT_NAME} -f docker-compose.yml logs --tail=50 backend frontend || true
+                            exit 1
+                        fi
+                    """
+                }
+            }
+        }
+        stage('Stage 3: Performance Test') {
+            steps {
+                echo "=== Stage 3: Gọi JMeter Non-GUI (RAM Limit: 768MB, Heap: 512MB) ==="
+                dir("performance") {
+                    sh """
+                        # Chuẩn bị thư mục kết quả
+                        rm -rf results && mkdir -p results
+
+                        # Chạy JMeter CLI Non-GUI chia sẻ volume với dafl-jenkins
+                        docker run --rm \
+                            --name dafl-jmeter-runner \
+                            --network ${DOCKER_NETWORK} \
+                            --volumes-from dafl-jenkins \
+                            -w \$(pwd) \
+                            --memory=768m \
+                            --cpus=1.0 \
+                            -e JVM_XMS=256 -e JVM_XMX=512 -e JVM_XMN=128 \
+                            justb4/jmeter:5.5 \
+                            -n -t dafl-loadtest.jmx \
+                            -Jtarget_host=dafl-backend \
+                            -Jtarget_port=8080 \
+                            -l results/result.jtl \
+                            -e -o results/dashboard || true
+                    """
+                }
+            }
+            post {
+                always {
+                    // Xuất JMeter HTML Dashboard
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: "performance/results/dashboard",
+                        reportFiles: 'index.html',
+                        reportName: 'JMeter Performance Dashboard',
+                        reportTitles: 'JMeter Dashboard Report'
+                    ])
+
+                    // Lưu trữ file .jtl làm Artifacts
+                    archiveArtifacts artifacts: "performance/results/*.jtl", allowEmptyArchive: true
+                }
+            }
+        }
+        stage('Stage 4: Performance Quality Gate') {
+            steps {
+                echo "=== Stage 4: Kiểm tra Response Time và Error Rate từ .jtl ==="
+                dir("performance") {
+                    sh """
+                        chmod +x ../quality-gate/check_performance_gate.sh
+                        ../quality-gate/check_performance_gate.sh results/result.jtl ${MAX_ERROR_RATE} ${MAX_AVG_RT_MS}
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "=== Dọn dẹp Git Worktree và Test Runners ==="
+            sh """
+                docker rm -f dafl-selenium-runner dafl-jmeter-runner 2>/dev/null || true
+                git worktree prune || true
+            """
+        }
+        success {
+            echo "=========================================================="
+            echo "🎉 [PERFORMANCE] Pipeline thành công: Performance Quality Gate PASSED!"
+            echo "👉 Frontend : http://localhost:3000"
+            echo "👉 Backend  : http://localhost:5000"
+            echo "=========================================================="
+        }
+        failure {
+            echo "❌ [PERFORMANCE] Pipeline thất bại: Quality Gate hiệu năng không đạt hoặc lỗi chạy JMeter!"
+            echo "👉 Vui lòng kiểm tra 'JMeter Performance Dashboard' và file result.jtl trong Artifacts để xem chi tiết."
+        }
+    }
+}
