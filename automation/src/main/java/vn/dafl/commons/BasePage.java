@@ -1,37 +1,186 @@
 package vn.dafl.commons;
 
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import vn.dafl.driver.DriverManager;
+
 import java.time.Duration;
 import java.util.List;
 
-/** BasePage theo mau WebRA: cac thao tac WebDriver dung chung, chi dung explicit wait - khong Thread.sleep. */
-public abstract class BasePage {
-    protected final WebDriver driver;
-    protected final WebDriverWait wait;
+/**
+ * Lop co so cho moi Page Object: thao tac phan tu, cho doi (explicit wait),
+ * phan tich locator dang "css=..." / "xpath=..." / "id=..." / "name=..." / "class=...".
+ * Locator dong dung String.format voi tham so %s.
+ */
+public class BasePage {
 
-    protected BasePage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIMEOUT));
+    protected WebDriver getDriver() {
+        return DriverManager.getDriver();
     }
-    public static By testId(String id) { return By.cssSelector("[data-testid='" + id + "']"); }
-    public static By testIdPrefix(String prefix) { return By.cssSelector("[data-testid^='" + prefix + "']"); }
 
-    public void openUrl(String url) { driver.get(url); }
-    public WebElement waitForVisible(By by) { return wait.until(ExpectedConditions.visibilityOfElementLocated(by)); }
-    public WebElement waitForClickable(By by) { return wait.until(ExpectedConditions.elementToBeClickable(by)); }
-    public void clickToElement(By by) { waitForClickable(by).click(); }
-    public void clickByJs(By by) { WebElement e = waitForVisible(by); ((JavascriptExecutor) driver).executeScript("arguments[0].click();", e); }
-    public void sendKeysToElement(By by, String value) { WebElement e = waitForVisible(by); e.clear(); e.sendKeys(value); }
-    public String getElementText(By by) { return waitForVisible(by).getText(); }
-    public boolean isElementDisplayed(By by) {
-        try { return waitForVisible(by).isDisplayed(); } catch (TimeoutException | NoSuchElementException e) { return false; }
+    protected WebDriverWait getWait(long timeoutInSeconds) {
+        return new WebDriverWait(getDriver(), Duration.ofSeconds(timeoutInSeconds));
     }
-    public boolean isElementUndisplayed(By by) {
-        try { return wait.until(ExpectedConditions.invisibilityOfElementLocated(by)); }
-        catch (TimeoutException e) { return driver.findElements(by).isEmpty(); }
+
+    public void openPageUrl(String url) {
+        getDriver().get(url);
     }
-    public List<WebElement> getElements(By by) { wait.until(ExpectedConditions.presenceOfElementLocated(by)); return driver.findElements(by); }
-    public int getElementCount(By by) { return driver.findElements(by).size(); }
+
+    public String getCurrentPageUrl() {
+        return getDriver().getCurrentUrl();
+    }
+
+    public String getPageTitle() {
+        return getDriver().getTitle();
+    }
+
+    public By getByLocator(String locator) {
+        if (locator.startsWith("css=")) {
+            return By.cssSelector(locator.substring(4));
+        } else if (locator.startsWith("xpath=")) {
+            return By.xpath(locator.substring(6));
+        } else if (locator.startsWith("id=")) {
+            return By.id(locator.substring(3));
+        } else if (locator.startsWith("name=")) {
+            return By.name(locator.substring(5));
+        } else if (locator.startsWith("class=")) {
+            return By.className(locator.substring(6));
+        } else if (locator.startsWith("tag=")) {
+            return By.tagName(locator.substring(4));
+        }
+        throw new IllegalArgumentException("Locator chua dinh nghia tien to (css=/xpath=/id=/name=/class=): " + locator);
+    }
+
+    public String getDynamicLocator(String locator, String... values) {
+        return String.format(locator, (Object[]) values);
+    }
+
+    public WebElement getWebElement(String locator) {
+        return getDriver().findElement(getByLocator(locator));
+    }
+
+    public WebElement getWebElement(String locator, String... values) {
+        return getDriver().findElement(getByLocator(getDynamicLocator(locator, values)));
+    }
+
+    public List<WebElement> getListWebElements(String locator) {
+        return getDriver().findElements(getByLocator(locator));
+    }
+
+    public List<WebElement> getListWebElements(String locator, String... values) {
+        return getDriver().findElements(getByLocator(getDynamicLocator(locator, values)));
+    }
+
+    public void clickToElement(String locator) {
+        waitForElementClickable(locator);
+        getWebElement(locator).click();
+    }
+
+    public void clickToElement(String locator, String... values) {
+        String dynamic = getDynamicLocator(locator, values);
+        waitForElementClickable(dynamic);
+        getWebElement(dynamic).click();
+    }
+
+    public void clickToElementByJS(String locator) {
+        WebElement element = getWebElement(locator);
+        ((JavascriptExecutor) getDriver()).executeScript("arguments[0].click();", element);
+    }
+
+    public void sendKeyToElement(String locator, String textValue) {
+        waitForElementVisible(locator);
+        WebElement element = getWebElement(locator);
+        element.clear();
+        element.sendKeys(textValue);
+    }
+
+    public void sendKeyToElement(String locator, String textValue, String... values) {
+        String dynamic = getDynamicLocator(locator, values);
+        waitForElementVisible(dynamic);
+        WebElement element = getWebElement(dynamic);
+        element.clear();
+        element.sendKeys(textValue);
+    }
+
+    public String getElementText(String locator) {
+        waitForElementVisible(locator);
+        return getWebElement(locator).getText().trim();
+    }
+
+    public String getElementText(String locator, String... values) {
+        String dynamic = getDynamicLocator(locator, values);
+        waitForElementVisible(dynamic);
+        return getWebElement(dynamic).getText().trim();
+    }
+
+    public String getElementAttribute(String locator, String attributeName) {
+        waitForElementVisible(locator);
+        return getWebElement(locator).getAttribute(attributeName);
+    }
+
+    public boolean isElementDisplayed(String locator) {
+        try {
+            return getWebElement(locator).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isElementDisplayed(String locator, String... values) {
+        try {
+            return getWebElement(getDynamicLocator(locator, values)).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isElementDisplayedWithWait(String locator, long timeoutInSeconds) {
+        try {
+            getWait(timeoutInSeconds).until(ExpectedConditions.visibilityOfElementLocated(getByLocator(locator)));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void waitForElementVisible(String locator) {
+        getWait(GlobalConstants.LONG_TIMEOUT)
+                .until(ExpectedConditions.visibilityOfElementLocated(getByLocator(locator)));
+    }
+
+    public void waitForElementVisible(String locator, String... values) {
+        waitForElementVisible(getDynamicLocator(locator, values));
+    }
+
+    public void waitForElementClickable(String locator) {
+        getWait(GlobalConstants.LONG_TIMEOUT)
+                .until(ExpectedConditions.elementToBeClickable(getByLocator(locator)));
+    }
+
+    public void waitForElementClickable(String locator, String... values) {
+        waitForElementClickable(getDynamicLocator(locator, values));
+    }
+
+    public void waitForElementInvisible(String locator) {
+        getWait(GlobalConstants.LONG_TIMEOUT)
+                .until(ExpectedConditions.invisibilityOfElementLocated(getByLocator(locator)));
+    }
+
+    public void scrollToElement(String locator) {
+        WebElement element = getWebElement(locator);
+        ((JavascriptExecutor) getDriver()).executeScript(
+                "arguments[0].scrollIntoView({block: 'center'});", element);
+    }
+
+    public void sleepInSecond(long seconds) {
+        try {
+            Thread.sleep(seconds * 1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 }

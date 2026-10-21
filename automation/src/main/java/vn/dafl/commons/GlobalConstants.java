@@ -1,28 +1,46 @@
 package vn.dafl.commons;
 
-/** Hang so dung chung theo mau WebRA (GlobalConstants).
- *  Moi gia tri nhay cam/mo truong deu doc tu bien moi truong hoac system property, khong hardcode. */
+/**
+ * Hang so dung chung cho toan bo framework.
+ * Du lieu demo (tai khoan, voucher) lay tu du lieu seed cua SUT DAFL
+ * (Backend/Infrastructure/Data/DbInitializer.cs) - tai khoan demo cong khai
+ * ma chinh ung dung cung cap san nut "dung tai khoan demo" tren giao dien.
+ */
 public class GlobalConstants {
-    /** URL FE: uu tien -Dapp.url > env APP_URL > mac dinh localhost:3000 (khop Jenkinsfile: APP_URL=http://dafl-frontend:80 trong Docker). */
-    public static String getAppUrl() {
-        String prop = System.getProperty("app.url");
-        if (prop != null && !prop.isEmpty()) return prop;
-        String env = System.getenv("APP_URL");
-        if (env != null && !env.isEmpty()) return env;
-        return "http://localhost:3000";
-    }
-    /** Tai khoan demo duoc seed boi DbInitializer cua Backend (du lieu demo cong khai trong repo). */
+
+    public static final long SHORT_TIMEOUT = 5;
+    public static final long LONG_TIMEOUT = 30;
+
+    public static final String DEFAULT_APP_URL = "http://localhost:3000";
+
+    // Tai khoan demo duoc seed san trong CSDL cua SUT
     public static final String DEMO_EMAIL = "demo@dafl.vn";
-    public static String getDemoPassword() {
-        String env = System.getenv("DEMO_PASSWORD");
-        return (env != null && !env.isEmpty()) ? env : "Password123!";
+    public static final String DEMO_PASSWORD = "Password123!";
+    public static final String DEMO_FULL_NAME = "Nguyễn Văn Demo";
+    public static final String DEMO_PHONE = "0987654321";
+    public static final String DEMO_ADDRESS = "Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội";
+
+    // Ma giam gia duoc seed san trong CSDL cua SUT
+    public static final String VOUCHER_PERCENT_10 = "DAFL10"; // giam 10% (don dau)
+    public static final String VOUCHER_FIXED_20K = "DAFL20";  // giam thang 20.000d
+
+    // Thong diep loi thuc te tra ve tu Backend cua SUT
+    public static final String LOGIN_ERROR_MESSAGE = "Email hoặc mật khẩu không chính xác";
+    public static final String VOUCHER_ERROR_MESSAGE = "Mã giảm giá không tồn tại hoặc đã hết hiệu lực";
+
+    private GlobalConstants() {
     }
-    /** Checksum key PayOS chi dung gia lap webhook o moi truong test; lay tu env PAYOS_CHECKSUM_KEY.
-     *  Gia tri mac dinh la demo key cong khai trong .env.example cua repo - KHONG dung cho production. */
-    public static String getPayosChecksumKey() {
-        String env = System.getenv("PAYOS_CHECKSUM_KEY");
-        return (env != null && !env.isEmpty()) ? env : "3a3ea89ceb36ac6477f7e5dc49e3b0abc8951ab1a932760ca78151670d19ef1f";
+
+    /** URL cua SUT: uu tien -Dapp.url, sau do bien moi truong APP_URL, cuoi cung la mac dinh. */
+    public static String getAppUrl() {
+        String propUrl = System.getProperty("app.url");
+        if (propUrl != null && !propUrl.trim().isEmpty()) {
+            return propUrl.trim();
+        }
+        String envUrl = System.getenv("APP_URL");
+        if (envUrl != null && !envUrl.trim().isEmpty()) {
+            return envUrl.trim();
+        }
+        return DEFAULT_APP_URL;
     }
-    public static final long LONG_TIMEOUT = 10;
-    public static final long PAGE_LOAD_TIMEOUT = 20;
 }

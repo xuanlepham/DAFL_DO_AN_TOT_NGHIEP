@@ -1,18 +1,28 @@
 package vn.dafl.pageUIs;
-import org.openqa.selenium.By;
-import vn.dafl.commons.BasePage;
-/** Locator trang chu/header - tach rieng theo mau WebRA pageUIs. Gia tri data-testid lay tu FE (src/Frontend). */
+
+/** Locator cua Header + thanh danh muc (xuat hien tren moi trang cua SUT).
+ *  Tat ca data-testid duoc trich truc tiep tu ma nguon Frontend cua DAFL. */
 public class HomePageUI {
-    public static final By BRAND_LOGO = BasePage.testId("brand-logo");
-    public static final By SEARCH_INPUT = BasePage.testId("search-input");
-    public static final By THEME_TOGGLE_BTN = BasePage.testId("theme-toggle-btn");
-    public static final By ACCOUNT_TOGGLE_BTN = BasePage.testId("account-toggle-btn");
-    public static final By DROPDOWN_LOGIN_BTN = BasePage.testId("dropdown-login-btn");
-    public static final By DROPDOWN_LOGOUT_BTN = BasePage.testId("dropdown-logout-btn");
-    public static final By CART_BTN = BasePage.testId("cart-btn");
-    public static final By PRODUCT_CARDS = By.cssSelector(".product-card");
-    public static final By ADD_TO_CART_BTNS = By.cssSelector("button[data-testid^='add-to-cart-btn-']");
-    public static final By CATEGORY_PILL_ALL = BasePage.testId("category-pill-all");
-    public static final By CATEGORY_PILLS = By.cssSelector("[data-testid^='category-pill-']:not([data-testid='category-pill-all'])");
-    public static final By DROPDOWN_LOGIN_BTN_VIS = BasePage.testId("dropdown-login-btn");
+
+    public static final String HEADER = "css=[data-testid='header']";
+    public static final String BRAND_LOGO = "css=[data-testid='brand-logo']";
+    public static final String SEARCH_INPUT = "css=[data-testid='search-input']";
+    public static final String SEARCH_CLEAR_BTN = "css=[data-testid='search-clear-btn']";
+    public static final String THEME_TOGGLE_BTN = "css=[data-testid='theme-toggle-btn']";
+    public static final String NOTIF_BELL_BTN = "css=[data-testid='notif-bell-btn']";
+    public static final String NOTIF_BADGE_COUNT = "css=[data-testid='notif-badge-count']";
+    public static final String ACCOUNT_TOGGLE_BTN = "css=[data-testid='account-toggle-btn']";
+    public static final String ACCOUNT_DROPDOWN_MENU = "css=[data-testid='account-dropdown-menu']";
+    public static final String DROPDOWN_LOGIN_BTN = "css=[data-testid='dropdown-login-btn']";
+    public static final String DROPDOWN_LOGOUT_BTN = "css=[data-testid='dropdown-logout-btn']";
+    public static final String DROPDOWN_ORDERS_BTN = "css=[data-testid='dropdown-orders-btn']";
+    public static final String DROPDOWN_PROFILE_BTN = "css=[data-testid='dropdown-profile-btn']";
+    public static final String CART_BTN = "css=[data-testid='cart-btn']";
+    public static final String CART_BADGE_COUNT = "css=[data-testid='cart-badge-count']";
+
+    // Thanh danh muc nam ngay duoi header o trang chu
+    public static final String CATEGORIES_BAR = "css=[data-testid='categories-bar']";
+    public static final String CATEGORY_PILL_ALL = "css=[data-testid='category-pill-all']";
+    public static final String DYNAMIC_CATEGORY_PILL = "css=[data-testid='category-pill-%s']";
+    public static final String ANY_CATEGORY_PILL = "css=[data-testid^='category-pill-']";
 }
