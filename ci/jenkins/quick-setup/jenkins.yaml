@@ -32,7 +32,7 @@ jobs:
                 remote {
                   url('https://github.com/xuanlepham/DAFL_DO_AN_TOT_NGHIEP.git')
                 }
-                branch('*/develop')
+                branch('*/main')
               }
             }
             scriptPath('Jenkinsfile')
@@ -53,7 +53,7 @@ jobs:
                 remote {
                   url('https://github.com/xuanlepham/DAFL_DO_AN_TOT_NGHIEP.git')
                 }
-                branch('*/develop')
+                branch('*/main')
               }
             }
             scriptPath('Jenkinsfile.auto')
@@ -74,7 +74,7 @@ jobs:
                 remote {
                   url('https://github.com/xuanlepham/DAFL_DO_AN_TOT_NGHIEP.git')
                 }
-                branch('*/develop')
+                branch('*/main')
               }
             }
             scriptPath('Jenkinsfile.pt')
