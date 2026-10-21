@@ -1,0 +1,71 @@
+﻿Mã TC,Module,Tên test case,Loại,Ưu tiên,Điều kiện tiên quyết,Dữ liệu kiểm thử,Các bước thực hiện,Kết quả mong đợi,Trạng thái tự động hóa
+TC_AUTH_01,Xác thực,Mở Auth Modal từ menu tài khoản,Positive,High,"FE đang chạy, chưa đăng nhập",—,"1. Mở trang chủ
+2. Bấm nút tài khoản (account-toggle-btn)
+3. Bấm Đăng nhập (dropdown-login-btn)","Auth Modal hiển thị, có đủ ô email + mật khẩu ở tab Đăng nhập",Đã auto (TC_UI_05)
+TC_AUTH_02,Xác thực,Đăng nhập thành công bằng tài khoản demo (nút điền sẵn),Positive,Blocker,Chưa đăng nhập; BE đã seed user demo,demo@dafl.vn (nút ⚡ Dùng tài khoản Demo),"1. Mở Auth Modal
+2. Bấm nút tài khoản Demo
+3. Bấm Đăng nhập",Modal đóng; mở lại menu tài khoản thấy nút Đăng xuất; toast 'Đăng nhập thành công',Đã auto (TC_UI_07)
+TC_AUTH_03,Xác thực,Đăng nhập thành công nhập tay đúng email/mật khẩu,Positive,High,Chưa đăng nhập,Email: demo@dafl.vn; Mật khẩu: mật khẩu seed (env DEMO_PASSWORD),"1. Mở Auth Modal
+2. Nhập email + mật khẩu đúng
+3. Bấm Đăng nhập",Đăng nhập thành công; thông tin họ tên/email được điền vào form checkout,Đã auto (TC_UI_15)
+TC_AUTH_04,Xác thực,Đăng nhập sai mật khẩu,Negative,Blocker,Chưa đăng nhập,Email: tester@dafl.vn; Mật khẩu: sai,"1. Mở Auth Modal
+2. Nhập email + mật khẩu sai
+3. Bấm Đăng nhập",Hiện thông báo lỗi tại auth-error-msg (nội dung khác rỗng); modal vẫn mở; không đăng nhập được,Đã auto (TC_UI_08)
+TC_AUTH_05,Xác thực,Email demo đúng nhưng mật khẩu sai bị từ chối,Negative,High,Chưa đăng nhập; BE đang chạy,Email: demo@dafl.vn; Mật khẩu: sai,"1. Mở Auth Modal
+2. Nhập email demo + mật khẩu sai
+3. Bấm Đăng nhập","BE trả lỗi, FE hiện auth-error-msg; không dùng fallback để đăng nhập",Đã auto (TC_UI_09)
+TC_AUTH_06,Xác thực,Đăng ký tài khoản mới hợp lệ,Positive,High,Chưa đăng nhập,"Họ tên + email chưa tồn tại + mật khẩu: Abc@1234 (≥8 ký tự, có chữ hoa, ký tự đặc biệt), nhập lại khớp","1. Mở Auth Modal → tab Đăng ký
+2. Điền đầy đủ thông tin hợp lệ
+3. Bấm Đăng ký",Tạo tài khoản thành công và được đăng nhập; không báo lỗi,Đã auto (TC_UI_10)
+TC_AUTH_07,Xác thực,Đăng ký với mật khẩu không đạt chính sách,Negative,High,Ở tab Đăng ký,Lần lượt thử: mật khẩu 7 ký tự; không chữ hoa; không ký tự đặc biệt,"1. Nhập mật khẩu yếu từng trường hợp
+2. Bấm Đăng ký",Báo lỗi đúng từng quy tắc: 'Mật khẩu phải có tối thiểu 8 ký tự.' / '...ít nhất 1 ký tự chữ hoa (A-Z).' / '...ít nhất 1 ký tự đặc biệt...',"Đã auto (TC_UI_11, TC_UI_12, TC_UI_13)"
+TC_AUTH_08,Xác thực,Đăng ký với mật khẩu xác nhận không khớp,Negative,Medium,Ở tab Đăng ký,Mật khẩu: Abc@1234; Nhập lại: Abc@9999,"1. Điền form đăng ký
+2. Nhập lại mật khẩu khác
+3. Bấm Đăng ký",Báo lỗi 'Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại.'; không tạo tài khoản,Đã auto (TC_UI_14)
+TC_AUTH_09,Xác thực,Đăng xuất,Positive,Medium,Đã đăng nhập,—,"1. Mở menu tài khoản
+2. Bấm Đăng xuất",Trở về trạng thái chưa đăng nhập; menu hiện nút Đăng nhập,Đã auto (TC_UI_16)
+TC_HOME_01,Trang chủ & Tìm kiếm,Trang chủ tải và hiển thị thương hiệu,Positive,Blocker,FE đang chạy,—,1. Mở trang chủ,Logo/thương hiệu chứa 'DAFL' hiển thị (brand-logo); trang tải không lỗi,Đã auto (TC_UI_01)
+TC_HOME_02,Trang chủ & Tìm kiếm,Ô tìm kiếm nhập được dữ liệu và nút đổi theme hiển thị,Positive,Medium,Ở trang chủ,Từ khóa: Áo,"1. Nhập 'Áo' vào ô tìm kiếm
+2. Kiểm tra nút theme-toggle-btn",Ô tìm kiếm giữ giá trị 'Áo'; nút đổi giao diện sáng/tối hiển thị,Đã auto (TC_UI_02)
+TC_HOME_03,Trang chủ & Tìm kiếm,Tìm kiếm sản phẩm theo từ khóa có kết quả,Positive,High,Có sản phẩm đã seed,Từ khóa: Áo,"1. Nhập 'Áo' vào ô tìm kiếm
+2. Quan sát danh sách sản phẩm",Chỉ hiển thị sản phẩm liên quan; số thẻ sản phẩm > 0,Một phần (trong TC_UI_06)
+TC_HOME_04,Trang chủ & Tìm kiếm,Tìm kiếm từ khóa không tồn tại,Negative,Medium,Ở trang chủ,Từ khóa: zzz-khong-ton-tai-123,"1. Nhập từ khóa không tồn tại
+2. Quan sát kết quả",Không có thẻ sản phẩm nào; hiển thị trạng thái rỗng (empty state) nếu có,Đã auto (TC_UI_17)
+TC_HOME_05,Trang chủ & Tìm kiếm,Lọc sản phẩm theo danh mục,Positive,High,Có ≥17 danh mục đã seed,Danh mục: chọn 1 pill danh mục bất kỳ,"1. Bấm 1 danh mục trên thanh categories
+2. Bấm lại pill 'Tất cả'",Lọc đúng sản phẩm thuộc danh mục; về 'Tất cả' hiển thị lại đầy đủ,Đã auto (TC_UI_18)
+TC_CAT_01,Danh mục sản phẩm,Danh sách sản phẩm hiển thị khi mở trang chủ,Positive,Critical,"FE/BE đang chạy, DB đã seed sản phẩm",—,"1. Mở trang chủ
+2. Đếm thẻ sản phẩm (.product-card)","Có ít nhất 1 thẻ sản phẩm hiển thị, mỗi thẻ có nút thêm vào giỏ",Đã auto (TC_UI_03)
+TC_CART_01,Giỏ hàng,Mở giỏ hàng từ Header,Positive,Critical,Ở trang chủ,—,1. Bấm nút giỏ hàng (cart-btn),Ngăn giỏ hàng (cart-drawer) hiển thị,Đã auto (TC_UI_04)
+TC_CART_02,Giỏ hàng,Thêm sản phẩm vào giỏ,Positive,Blocker,Ở trang chủ,Sản phẩm đầu tiên,1. Bấm nút thêm vào giỏ của 1 sản phẩm,Giỏ tự mở; sản phẩm xuất hiện trong giỏ; badge số lượng cập nhật,Một phần (trong TC_UI_06)
+TC_CART_03,Giỏ hàng,Áp dụng voucher phần trăm hợp lệ,Positive,High,Giỏ có ít nhất 1 sản phẩm; đã đăng nhập nếu FE yêu cầu,"Mã: DAFL10 (giảm 10%, tối đa 100.000đ)","1. Mở giỏ
+2. Nhập mã DAFL10
+3. Bấm áp dụng",Hiển thị dòng giảm giá voucher (cart-voucher-discount); tổng tiền giảm đúng 10% (không vượt trần 100.000đ),Đã auto (TC_UI_19)
+TC_CART_04,Giỏ hàng,Áp dụng voucher cố định hợp lệ,Positive,Medium,Giỏ có sản phẩm,Mã: DAFL20 (giảm cố định 20.000đ),"1. Nhập mã DAFL20
+2. Áp dụng",Tổng tiền giảm đúng 20.000đ,Đã auto (TC_UI_21)
+TC_CART_05,Giỏ hàng,Áp dụng voucher không tồn tại,Negative,High,Giỏ có sản phẩm,Mã: KHONGTONTAI,"1. Nhập mã sai
+2. Áp dụng",Báo lỗi voucher không hợp lệ; tổng tiền không đổi,Đã auto (TC_UI_20)
+TC_CO_01,Thanh toán,Chặn thanh toán khi chưa đăng nhập (Auth Guard),Negative,Blocker,Giỏ có sản phẩm; CHƯA đăng nhập,Thông tin giao hàng hợp lệ,"1. Thêm sản phẩm vào giỏ
+2. Điền form giao hàng
+3. Bấm Thanh toán",Auth Modal bật lên yêu cầu đăng nhập thay vì tạo đơn,Đã auto (trong TC_UI_06)
+TC_CO_02,Thanh toán,E2E đặt hàng + giả lập PayOS thành công,Positive,Blocker,Giỏ có sản phẩm; tài khoản demo,Tên: Nguyễn Văn Test; Email: tester@dafl.vn; SĐT: 0987654321; Địa chỉ hợp lệ,"1. Thêm sản phẩm → điền form
+2. Thanh toán → đăng nhập demo (Auth Guard)
+3. Quay lại giỏ → Thanh toán
+4. Lấy mã đơn + số tiền ở màn hình PayOS
+5. Bắn webhook PayOS giả lập ký HMAC-SHA256 hợp lệ
+6. Bấm nút giả lập thành công (nếu hiện)",Hiện màn hình 'Thanh toán thành công' (order-paid-view); bấm 'Tiếp tục mua sắm' quay về trang chủ,Đã auto (TC_UI_06)
+TC_CO_03,Thanh toán,Form checkout thiếu thông tin bắt buộc,Negative,High,Giỏ có sản phẩm; đã đăng nhập,Để trống lần lượt: tên / email / SĐT / địa chỉ,"1. Mở giỏ
+2. Để trống 1 trường bắt buộc
+3. Bấm Thanh toán",Không tạo đơn; trường thiếu được báo lỗi/ngăn submit,Đã auto (TC_UI_22)
+TC_CO_04,Thanh toán,Sau đăng nhập từ Auth Guard quay lại đúng giỏ hàng,Positive,High,Đang ở bước TC_CO_01 (Auth Modal đang mở),Tài khoản demo,"1. Tại Auth Modal bấm nút tài khoản Demo
+2. Bấm Đăng nhập",Modal đóng; giỏ hàng mở lại với đúng sản phẩm đã chọn trước đó,Đã auto (trong TC_UI_06)
+TC_API_01,API Backend,Health check Backend,Positive,High,BE đang chạy :5000,—,1. GET http://localhost:5000/health,"HTTP 200; body có status='Healthy', database='PostgreSQL'",JMeter (GET Health API)
+TC_API_02,API Backend,Lấy danh sách sản phẩm + tìm kiếm,Positive,High,DB đã seed,Query: /api/products và /api/products?search=ao,"1. Gọi 2 endpoint
+2. So sánh kết quả",HTTP 200; danh sách không rỗng; kết quả search chỉ chứa sản phẩm liên quan,JMeter (GET Products / Search)
+TC_API_03,API Backend,Lấy danh mục và voucher,Positive,Medium,DB đã seed,—,"1. GET /api/categories
+2. GET /api/vouchers","HTTP 200; categories ≥ 17; vouchers chứa DAFL10, DAFL20",JMeter (GET Categories / Vouchers)
+TC_API_04,API Backend,Đăng nhập API đúng/sai thông tin,Positive + Negative,High,Đã seed user demo,Đúng: demo@dafl.vn + mật khẩu seed; Sai: cùng email + mật khẩu sai,"1. POST /api/auth/login với thông tin đúng
+2. POST lại với mật khẩu sai","Lần 1: HTTP 200 + success=true, có thông tin user; Lần 2: bị từ chối (success=false/401)",JMeter (POST Login API - case đúng)
+TC_API_05,API Backend,Áp dụng voucher qua API,Positive + Negative,Medium,Có mã DAFL10 hợp lệ và mã sai,POST /api/vouchers/apply,"1. Apply mã DAFL10
+2. Apply mã không tồn tại",Lần 1 thành công với số tiền giảm đúng quy tắc 10% (trần 100.000đ); lần 2 bị từ chối,Thủ công (Postman)
+TC_PERF_01,Hiệu năng,Smoke performance các API đọc chính,Positive,High,BE đang chạy; JMeter đã cài,"Plan dafl-loadtest.jmx: 20 threads, ramp 5s, 5 loops (mặc định)","1. Chạy JMeter non-GUI với plan
+2. Chạy check_performance_gate.sh",Có file .jtl hợp lệ; error rate ≤ 2% và avg response time ≤ 1000ms thì gate PASS,Đã auto (JMeter + Gate)

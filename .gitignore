@@ -1,0 +1,10 @@
+target/
+**/target/
+sut/
+build-worktree/
+performance/results/
+*.log
+.idea/
+*.iml
+.tools/
+allure-report/
