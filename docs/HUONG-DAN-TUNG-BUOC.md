@@ -151,7 +151,7 @@ docker compose stop     # dung cac container, giu nguyen du lieu
 docker compose down     # dung va xoa container (du lieu DB van giu trong volume)
 ```
 
-Lưu ý: lệnh `docker compose down -v` sẽ xóa cả volume chứa dữ liệu PostgreSQL — chỉ dùng khi muốn hệ thống trở về trạng thái sạch hoàn toàn (tài khoản demo và dữ liệu mẫu sẽ được khởi tạo lại ở lần `up` tiếp theo). Trong các lần mở máy sau, chỉ cần mở Docker Desktop là các container tự chạy lại nhờ chính sách `restart: unless-stopped` đã khai báo trong file compose; riêng lần đầu tiên sau khi clone code thì bắt buộc chạy lệnh ở mục C.1.
+Lưu ý: lệnh `docker compose down -v` sẽ xóa cả volume chứa dữ liệu PostgreSQL — chỉ dùng khi muốn hệ thống trở về trạng thái sạch hoàn toàn (tài khoản demo và dữ liệu mẫu sẽ được khởi tạo lại ở lần `up` tiếp theo). Về các lần mở máy sau: nhờ chính sách `restart: unless-stopped` đã khai báo trong file compose, nếu các container **đang chạy** khi bạn tắt máy hoặc đóng Docker Desktop thì lần sau chỉ cần mở Docker Desktop là chúng tự chạy lại. Ngược lại, nếu bạn đã chủ động dừng bằng `docker compose stop` hoặc `docker compose down` thì cần tự bật lại bằng lệnh `docker compose start` (sau `stop`) hoặc `docker compose up -d` (sau `down`) — và riêng lần đầu tiên sau khi clone code thì bắt buộc chạy lệnh ở mục C.1.
 
 ---
 
