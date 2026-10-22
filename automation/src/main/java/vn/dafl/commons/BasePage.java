@@ -18,6 +18,32 @@ import java.util.List;
  */
 public class BasePage {
 
+    /**
+     * Tam dung sau moi thao tac click/go phim, de chay cham lai cho de quan sat khi demo.
+     * Doc tu tham so -Daction.delay.ms (don vi mili-giay). Mac dinh 0 = khong cham,
+     * nen Jenkins/CI (khong truyen tham so nay) van chay toc do binh thuong.
+     * Vi du chay demo: -Daction.delay.ms=800 (moi thao tac nghi 0,8 giay).
+     */
+    private static final long ACTION_DELAY_MS = loadActionDelayMs();
+
+    private static long loadActionDelayMs() {
+        try {
+            return Math.max(0, Long.parseLong(System.getProperty("action.delay.ms", "0").trim()));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    public void pauseAfterAction() {
+        if (ACTION_DELAY_MS > 0) {
+            try {
+                Thread.sleep(ACTION_DELAY_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
     protected WebDriver getDriver() {
         return DriverManager.getDriver();
     }
@@ -28,6 +54,7 @@ public class BasePage {
 
     public void openPageUrl(String url) {
         getDriver().get(url);
+        pauseAfterAction();
     }
 
     public String getCurrentPageUrl() {
@@ -78,17 +105,20 @@ public class BasePage {
     public void clickToElement(String locator) {
         waitForElementClickable(locator);
         getWebElement(locator).click();
+        pauseAfterAction();
     }
 
     public void clickToElement(String locator, String... values) {
         String dynamic = getDynamicLocator(locator, values);
         waitForElementClickable(dynamic);
         getWebElement(dynamic).click();
+        pauseAfterAction();
     }
 
     public void clickToElementByJS(String locator) {
         WebElement element = getWebElement(locator);
         ((JavascriptExecutor) getDriver()).executeScript("arguments[0].click();", element);
+        pauseAfterAction();
     }
 
     public void sendKeyToElement(String locator, String textValue) {
@@ -96,6 +126,7 @@ public class BasePage {
         WebElement element = getWebElement(locator);
         element.clear();
         element.sendKeys(textValue);
+        pauseAfterAction();
     }
 
     public void sendKeyToElement(String locator, String textValue, String... values) {
@@ -104,6 +135,7 @@ public class BasePage {
         WebElement element = getWebElement(dynamic);
         element.clear();
         element.sendKeys(textValue);
+        pauseAfterAction();
     }
 
     public String getElementText(String locator) {
