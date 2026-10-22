@@ -74,4 +74,72 @@ public class AuthTest extends BaseTest {
         homePage.waitForLoggedIn();
         Assert.assertTrue(homePage.isUserLoggedIn(), "Khong dang nhap lai duoc bang tai khoan vua dang ky");
     }
+
+    @Test(description = "AUTH-06: chuyen qua lai giua tab Dang nhap / Dang ky, form va tieu de modal thay doi theo tab")
+    public void switchBetweenLoginAndRegisterTabs() {
+        HomePageObject homePage = openHomePage();
+        AuthModalPageObject authModal = homePage.openLoginModal();
+        Assert.assertTrue(authModal.isLoginFormDisplayed(), "Mo modal nhung khong thay form dang nhap");
+        Assert.assertEquals(authModal.getModalTitle(), "Đăng nhập tài khoản",
+                "Tieu de modal khi o tab dang nhap khong dung voi Frontend");
+        authModal.switchToRegisterTab();
+        Assert.assertTrue(authModal.isRegisterFormDisplayed(), "Chuyen sang tab dang ky nhung khong thay form dang ky");
+        Assert.assertEquals(authModal.getModalTitle(), "Đăng ký thành viên mới",
+                "Tieu de modal khi o tab dang ky khong dung voi Frontend");
+        authModal.switchToLoginTab();
+        Assert.assertTrue(authModal.isLoginFormDisplayed(), "Chuyen lai tab dang nhap nhung khong thay form dang nhap");
+    }
+
+    @Test(description = "AUTH-07: dong modal bang nut X, chua dang nhap, mo lai modal duoc")
+    public void closeModalAndReopen() {
+        HomePageObject homePage = openHomePage();
+        AuthModalPageObject authModal = homePage.openLoginModal();
+        Assert.assertTrue(authModal.isModalStillOpen(), "Modal chua mo");
+        authModal.closeModal();
+        Assert.assertFalse(authModal.isModalStillOpen(), "Da bam nut X nhung modal van con mo");
+        Assert.assertFalse(homePage.isUserLoggedIn(), "Chi dong modal ma he thong da ghi nhan dang nhap");
+        AuthModalPageObject reopenedModal = homePage.openLoginModal();
+        Assert.assertTrue(reopenedModal.isLoginFormDisplayed(), "Mo lai modal nhung khong thay form dang nhap");
+    }
+
+    @Test(description = "AUTH-08: nut hien/an mat khau tren form dang nhap chuyen type cua o mat khau password <-> text")
+    public void toggleLoginPasswordVisibility() {
+        AuthModalPageObject authModal = openHomePage().openLoginModal();
+        authModal.enterLoginPassword("Test@1234");
+        Assert.assertEquals(authModal.getLoginPasswordInputType(), "password",
+                "Mac dinh o mat khau phai o che do an (type=password)");
+        authModal.toggleLoginPasswordVisibility();
+        Assert.assertEquals(authModal.getLoginPasswordInputType(), "text",
+                "Bam nut hien mat khau nhung o mat khau chua chuyen sang type=text");
+        authModal.toggleLoginPasswordVisibility();
+        Assert.assertEquals(authModal.getLoginPasswordInputType(), "password",
+                "Bam nut an mat khau nhung o mat khau chua quay ve type=password");
+    }
+
+    @Test(description = "AUTH-09: dang nhap sai mat khau bao loi, nhap lai dung ngay trong cung phien modal thi thanh cong")
+    public void loginFailsThenSucceedsInSameModalSession() {
+        HomePageObject homePage = openHomePage();
+        AuthModalPageObject authModal = homePage.openLoginModal();
+        authModal.loginAs(GlobalConstants.DEMO_EMAIL, "SaiMatKhau@123");
+        Assert.assertTrue(authModal.isErrorMessageDisplayed(), "Dang nhap sai nhung khong thay thong diep loi");
+        authModal.loginAs(GlobalConstants.DEMO_EMAIL, GlobalConstants.DEMO_PASSWORD);
+        homePage.waitForLoggedIn();
+        Assert.assertTrue(homePage.isUserLoggedIn(),
+                "Nhap lai dung mat khau trong cung phien modal nhung van khong dang nhap duoc");
+    }
+
+    @Test(description = "AUTH-10: dang ky bang email sai dinh dang -> form chan lai, modal van mo, khong tao tai khoan")
+    public void registerWithInvalidEmailFormat() {
+        AuthModalPageObject authModal = openHomePage().openLoginModal();
+        authModal.register("Test Email", "emailsaidinhdang@", "0912345678",
+                "Ha Noi", "Test@1234", "Test@1234");
+        Assert.assertTrue(authModal.isModalStillOpen(), "Email sai dinh dang ma van dang ky thanh cong");
+    }
+
+    @Test(description = "AUTH-11: dang ky de trong cac truong bat buoc -> khong tao tai khoan, modal van mo")
+    public void registerWithEmptyRequiredFields() {
+        AuthModalPageObject authModal = openHomePage().openLoginModal();
+        authModal.register("", "", "", "", "", "");
+        Assert.assertTrue(authModal.isModalStillOpen(), "De trong cac truong bat buoc ma van dang ky thanh cong");
+    }
 }
