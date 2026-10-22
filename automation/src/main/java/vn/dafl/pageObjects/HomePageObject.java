@@ -31,7 +31,11 @@ public class HomePageObject extends BasePage {
 
     // ---------- Tai khoan ----------
     public void openAccountDropdown() {
-        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        // Chi bam nut toggle khi menu dang dong: nut nay co tinh chat bat/tat nen
+        // neu menu dang mo ma bam nua se thanh dong lai, roi cho vo ich 30 giay.
+        if (!isElementDisplayed(HomePageUI.ACCOUNT_DROPDOWN_MENU)) {
+            clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        }
         waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
     }
 
