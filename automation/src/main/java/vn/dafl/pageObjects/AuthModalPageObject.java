@@ -14,6 +14,15 @@ public class AuthModalPageObject extends BasePage {
         return isElementDisplayed(AuthModalPageUI.LOGIN_FORM);
     }
 
+    public boolean isRegisterFormDisplayed() {
+        return isElementDisplayed(AuthModalPageUI.REGISTER_FORM);
+    }
+
+    /** Tieu de modal thay doi theo tab: "Dang nhap tai khoan" / "Dang ky thanh vien moi". */
+    public String getModalTitle() {
+        return getElementText(AuthModalPageUI.AUTH_MODAL_TITLE);
+    }
+
     public void loginAs(String email, String password) {
         switchToLoginTab();
         sendKeyToElement(AuthModalPageUI.LOGIN_EMAIL_INPUT, email);
@@ -29,6 +38,21 @@ public class AuthModalPageObject extends BasePage {
 
     public void submitLogin() {
         clickToElement(AuthModalPageUI.LOGIN_SUBMIT_BTN);
+    }
+
+    /** Chi go mat khau vao form dang nhap, chua bam nut Dang nhap. */
+    public void enterLoginPassword(String password) {
+        sendKeyToElement(AuthModalPageUI.LOGIN_PASSWORD_INPUT, password);
+    }
+
+    /** Bam nut con mat (hien/an mat khau) tren form dang nhap. */
+    public void toggleLoginPasswordVisibility() {
+        clickToElement(AuthModalPageUI.TOGGLE_LOGIN_PASSWORD_BTN);
+    }
+
+    /** Thuoc tinh type cua o mat khau: "password" khi dang an, "text" khi dang hien. */
+    public String getLoginPasswordInputType() {
+        return getElementAttribute(AuthModalPageUI.LOGIN_PASSWORD_INPUT, "type");
     }
 
     public void switchToLoginTab() {
