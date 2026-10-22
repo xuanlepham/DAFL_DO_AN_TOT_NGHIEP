@@ -16,6 +16,7 @@ public class AuthModalPageUI {
     public static final String LOGIN_PASSWORD_INPUT = "css=[data-testid='login-password-input']";
     public static final String LOGIN_SUBMIT_BTN = "css=[data-testid='login-submit-btn']";
     public static final String DEMO_ACCOUNT_BTN = "css=[data-testid='demo-account-btn']";
+    public static final String TOGGLE_LOGIN_PASSWORD_BTN = "css=[data-testid='toggle-login-password-btn']";
 
     // Form dang ky
     public static final String REGISTER_FORM = "css=[data-testid='register-form']";
@@ -26,4 +27,6 @@ public class AuthModalPageUI {
     public static final String REGISTER_PASSWORD_INPUT = "css=[data-testid='register-password-input']";
     public static final String REGISTER_CONFIRM_PASSWORD_INPUT = "css=[data-testid='register-confirm-password-input']";
     public static final String REGISTER_SUBMIT_BTN = "css=[data-testid='register-submit-btn']";
+    public static final String TOGGLE_REGISTER_PASSWORD_BTN = "css=[data-testid='toggle-register-password-btn']";
+    public static final String TOGGLE_REGISTER_CONFIRM_PASSWORD_BTN = "css=[data-testid='toggle-register-confirm-password-btn']";
 }
