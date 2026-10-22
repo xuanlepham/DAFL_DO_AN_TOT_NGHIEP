@@ -46,7 +46,7 @@ set "PATH=%JAVA_HOME%\bin;%PATH%"
 echo [JAVA] JAVA_HOME = %JAVA_HOME%
 
 rem ===== Chay test bang Maven Wrapper =====
-call "%~dp0mvnw.cmd" test -Dheadless=false "-Dapp.url=http://localhost:3000" %*
+call "%~dp0mvnw.cmd" test -Dheadless=false -Daction.delay.ms=700 "-Dapp.url=http://localhost:3000" %*
 pause
 exit /b 0
 
